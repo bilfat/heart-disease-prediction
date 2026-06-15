@@ -213,6 +213,7 @@ def render():
             with st.container(border=True):
                 st.markdown(
                     """
+                    <div class="right-panel-marker"></div>
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem;">
                         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" fill="#0d7377"><path d="M200 936q-33 0-56.5-23.5T120 856V296q0-33 23.5-56.5T200 216h560q33 0 56.5 23.5T840 296v560q0 33-23.5 23.5T760 936H200Zm0-80h560V376H200v480Zm280-80q83 0 141.5-58.5T680 576q0-83-58.5-141.5T480 376q-83 0-141.5 58.5T280 576q0 83 58.5 141.5T480 776Z"/></svg>
                         <h3 style="margin: 0 !important; color: #1e293b;">Status & Hasil Prediksi</h3>
@@ -245,7 +246,6 @@ def render():
                     u_sex = results_state["jenis_kelamin"]
                     u_chol = results_state["kolesterol"]
 
-                    st.markdown("<div style='min-height: 440px;'>", unsafe_allow_html=True)
                     if m_pilihan == "Semua Model (4 Sekaligus)":
                         results = predict_all(p_data)
                         row1 = st.columns(2)
@@ -346,7 +346,7 @@ def render():
                         except Exception as e:
                             st.error(f"Terjadi kesalahan: {e}")
 
-                    st.markdown("</div>", unsafe_allow_html=True)
+                    # Hasil prediksi rendered directly below the header
 
                     if st.button("Reset / Input Baru", use_container_width=True, key="reset_prediction"):
                         st.session_state.manual_prediction_results = None

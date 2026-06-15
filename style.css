@@ -642,3 +642,21 @@ hr {
 .stApp div.stButton > button {
     transition: all 0.2s ease-in-out !important;
 }
+
+/* ============================================
+   RIGHT PANEL PREDICTION RESULTS ALIGNMENT
+   ============================================ */
+/* Enforce top vertical alignment in the right prediction panel container */
+div[data-testid="stVerticalBlockBorderWrapper"]:has(.right-panel-marker) > div[data-testid="stVerticalBlock"] {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+}
+
+/* Give prediction cards row a reasonable margin top to sit cleanly under the title */
+div[data-testid="stVerticalBlockBorderWrapper"]:has(.right-panel-marker) [data-testid="stHorizontalBlock"],
+div[data-testid="stVerticalBlockBorderWrapper"]:has(.right-panel-marker) .result-positive,
+div[data-testid="stVerticalBlockBorderWrapper"]:has(.right-panel-marker) .result-negative {
+    margin-top: 15px !important;
+}
