@@ -11,7 +11,7 @@ import datetime
 from modules.prediction_engine import predict_single, predict_all
 
 def render():
-    st.markdown("## 👤 Analisis Risiko Penyakit Jantung")
+    st.markdown("## 👤 Analisis Penyakit Jantung")
 
     col_metode, col_model = st.columns(2)
 
@@ -31,7 +31,10 @@ def render():
     st.divider()
 
     # ---- A. INPUT MANUAL ----
+    # ---- A. INPUT MANUAL ----
     if metode == "Input Manual":
+        if "manual_prediction_results" not in st.session_state:
+            st.session_state.manual_prediction_results = None
 
         with st.expander("📖 Penjelasan Singkat Setiap Input (Klik untuk Buka)", expanded=False):
             st.markdown(
@@ -58,231 +61,296 @@ def render():
                 unsafe_allow_html=True
             )
 
-        with st.container(border=True):
-            st.markdown("### 📝 Formulir Data Pasien")
+        left_col, right_col = st.columns([1, 1])
 
-            col1, col2 = st.columns(2)
-
-            with col1:
-                usia = st.number_input(
-                    "Usia",
-                    min_value=1, max_value=120, value=45,
-                    help="Umur pasien saat ini"
+        with left_col:
+            with st.container(border=True):
+                st.markdown(
+                    """
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.2rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" fill="#0d7377"><path d="M480 576q-75 0-127.5-52.5T300 396q0-75 52.5-127.5T480 216q75 0 127.5 52.5T660 396q0 75-52.5 127.5T480 576Zm0-80q42 0 71-29t29-71q0-42-29-71t-71-29q-42 0-71 29t-29 71q0 42 29 71t71 29Zm0 368q-142 0-252.5-74T80 600q0-29 11.5-56t31.5-49.5q20-22.5 49-36.5t63-14q47 18 97.5 27t102.5 9q52 0 102.5-9t97.5-27q34 0 63 14t49 36.5q20 22.5 31.5 49.5T880 600q-35 116-145.5 190T480 864Zm0-80q105 0 188.5-51T794 600q-21-41-69.5-62.5T480 516q-95 0-143.5 21.5T267 600q30 82 113.5 133T480 784Z"/></svg>
+                        <h3 style="margin: 0 !important; color: #1e293b;">Data Klinis Pasien</h3>
+                    </div>
+                    <p style="margin: 0 0 1.2rem 0; font-size: 0.78rem !important; color: #64748b;">
+                        Silakan lengkapi formulir parameter medis di bawah ini.
+                    </p>
+                    """,
+                    unsafe_allow_html=True
                 )
 
-                jenis_kelamin = st.selectbox(
-                    "Jenis Kelamin",
-                    [0, 1],
-                    format_func=lambda x: "Perempuan" if x == 0 else "Laki-laki",
-                    index=1,
-                    help="Pilih jenis kelamin pasien"
-                )
+                col1, col2 = st.columns(2)
 
-                nyeri_dada = st.selectbox(
-                    "Tipe Nyeri Dada",
-                    [0, 1, 2, 3],
-                    format_func=lambda x: {
-                        0: "Nyeri khas jantung (Tipe 0)",
-                        1: "Nyeri tidak khas (Tipe 1)",
-                        2: "Nyeri bukan jantung (Tipe 2)",
-                        3: "Tidak ada gejala (Tipe 3)"
-                    }[x],
-                    help="Jenis rasa sakit yang dirasakan di dada"
-                )
+                with col1:
+                    usia = st.number_input(
+                        "Usia",
+                        min_value=1, max_value=120, value=45,
+                        help="Umur pasien saat ini"
+                    )
 
-                tekanan_darah = st.number_input(
-                    "Tekanan Darah Saat Istirahat",
-                    min_value=50, max_value=250, value=120,
-                    help="Angka tensi atas saat istirahat (normal ~120)"
-                )
+                    jenis_kelamin = st.selectbox(
+                        "Jenis Kelamin",
+                        [0, 1],
+                        format_func=lambda x: "Perempuan" if x == 0 else "Laki-laki",
+                        index=1,
+                        help="Pilih jenis kelamin pasien"
+                    )
 
-                kolesterol = st.number_input(
-                    "Kolesterol",
-                    min_value=100, max_value=600, value=220,
-                    help="Kadar lemak dalam darah (idealnya <200)"
-                )
+                    nyeri_dada = st.selectbox(
+                        "Tipe Nyeri Dada",
+                        [0, 1, 2, 3],
+                        format_func=lambda x: {
+                            0: "Nyeri khas jantung (Tipe 0)",
+                            1: "Nyeri tidak khas (Tipe 1)",
+                            2: "Nyeri bukan jantung (Tipe 2)",
+                            3: "Tidak ada gejala (Tipe 3)"
+                        }[x],
+                        help="Jenis rasa sakit yang dirasakan di dada"
+                    )
 
-                gula_darah = st.selectbox(
-                    "Gula Darah Puasa > 120?",
-                    [0, 1],
-                    format_func=lambda x: "Tidak" if x == 0 else "Ya",
-                    index=0,
-                    help="Apakah gula darah saat puasa di atas 120 mg/dl?"
-                )
+                    tekanan_darah = st.number_input(
+                        "Tekanan Darah Saat Istirahat",
+                        min_value=50, max_value=250, value=120,
+                        help="Angka tensi atas saat istirahat (normal ~120)"
+                    )
 
-                hasil_ecg = st.selectbox(
-                    "Hasil Rekam Jantung (EKG)",
-                    [0, 1, 2],
-                    format_func=lambda x: {
-                        0: "Normal (Tipe 0)",
-                        1: "Ada kelainan ringan (Tipe 1)",
-                        2: "Pembesaran jantung (Tipe 2)"
-                    }[x],
-                    help="Hasil pemeriksaan listrik jantung"
-                )
+                    kolesterol = st.number_input(
+                        "Kolesterol",
+                        min_value=100, max_value=600, value=220,
+                        help="Kadar lemak dalam darah (idealnya <200)"
+                    )
 
-            with col2:
-                detak_jantung = st.number_input(
-                    "Detak Jantung Maksimum",
-                    min_value=50, max_value=250, value=150,
-                    help="Detak jantung tercepat saat olahraga"
-                )
+                    gula_darah = st.selectbox(
+                        "Gula Darah Puasa > 120?",
+                        [0, 1],
+                        format_func=lambda x: "Tidak" if x == 0 else "Ya",
+                        index=0,
+                        help="Apakah gula darah saat puasa di atas 120 mg/dl?"
+                    )
 
-                angina = st.selectbox(
-                    "Nyeri Dada Saat Olahraga?",
-                    [0, 1],
-                    format_func=lambda x: "Tidak" if x == 0 else "Ya",
-                    help="Apakah muncul rasa sakit di dada saat olahraga?"
-                )
+                    hasil_ecg = st.selectbox(
+                        "Hasil Rekam Jantung (EKG)",
+                        [0, 1, 2],
+                        format_func=lambda x: {
+                            0: "Normal (Tipe 0)",
+                            1: "Ada kelainan ringan (Tipe 1)",
+                            2: "Pembesaran jantung (Tipe 2)"
+                        }[x],
+                        help="Hasil pemeriksaan listrik jantung"
+                    )
 
-                oldpeak = st.number_input(
-                    "Oldpeak",
-                    min_value=0.0, max_value=10.0, value=1.5, step=0.1,
-                    help="Perubahan grafik jantung setelah olahraga (0 = normal)"
-                )
+                with col2:
+                    detak_jantung = st.number_input(
+                        "Detak Jantung Maksimum",
+                        min_value=50, max_value=250, value=150,
+                        help="Detak jantung tercepat saat olahraga"
+                    )
 
-                slope = st.selectbox(
-                    "Pola Grafik Jantung (Slope)",
-                    [0, 1, 2],
-                    format_func=lambda x: {
-                        0: "Naik / bagus (Tipe 0)",
-                        1: "Datar / waspada (Tipe 1)",
-                        2: "Turun / perlu perhatian (Tipe 2)"
-                    }[x],
-                    index=1,
-                    help="Bentuk grafik jantung saat olahraga berat"
-                )
+                    angina = st.selectbox(
+                        "Nyeri Dada Saat Olahraga?",
+                        [0, 1],
+                        format_func=lambda x: "Tidak" if x == 0 else "Ya",
+                        help="Apakah muncul rasa sakit di dada saat olahraga?"
+                    )
 
-                ca = st.selectbox(
-                    "Pembuluh Darah Tersumbat",
-                    [0, 1, 2, 3, 4],
-                    help="Jumlah pembuluh darah besar yang tersumbat (0 = tidak ada)"
-                )
+                    oldpeak = st.number_input(
+                        "Oldpeak",
+                        min_value=0.0, max_value=10.0, value=1.5, step=0.1,
+                        help="Perubahan grafik jantung setelah olahraga (0 = normal)"
+                    )
 
-                thal = st.selectbox(
-                    "Kondisi Thalassemia",
-                    [0, 1, 2, 3],
-                    format_func=lambda x: {
-                        0: "Normal (Tipe 0)",
-                        1: "Cacat permanen (Tipe 1)",
-                        2: "Cacat sementara (Tipe 2)",
-                        3: "Parah (Tipe 3)"
-                    }[x],
-                    index=2,
-                    help="Kondisi kelainan pada sel darah merah"
-                )
+                    slope = st.selectbox(
+                        "Pola Grafik Jantung (Slope)",
+                        [0, 1, 2],
+                        format_func=lambda x: {
+                            0: "Naik / bagus (Tipe 0)",
+                            1: "Datar / waspada (Tipe 1)",
+                            2: "Turun / perlu perhatian (Tipe 2)"
+                        }[x],
+                        index=1,
+                        help="Bentuk grafik jantung saat olahraga berat"
+                    )
 
-            st.divider()
+                    ca = st.selectbox(
+                        "Pembuluh Darah Tersumbat",
+                        [0, 1, 2, 3, 4],
+                        help="Jumlah pembuluh darah besar yang tersumbat (0 = tidak ada)"
+                    )
 
-            btn_prediksi = st.button("🔍 Jalankan Prediksi", use_container_width=True)
+                    thal = st.selectbox(
+                        "Kondisi Thalassemia",
+                        [0, 1, 2, 3],
+                        format_func=lambda x: {
+                            0: "Normal (Tipe 0)",
+                            1: "Cacat permanen (Tipe 1)",
+                            2: "Cacat sementara (Tipe 2)",
+                            3: "Parah (Tipe 3)"
+                        }[x],
+                        index=2,
+                        help="Kondisi kelainan pada sel darah merah"
+                    )
 
-        if btn_prediksi:
-            patient_data = pd.DataFrame([[
-                usia, jenis_kelamin, nyeri_dada, tekanan_darah, kolesterol,
-                gula_darah, hasil_ecg, detak_jantung, angina, oldpeak,
-                slope, ca, thal
-            ]], columns=[
-                'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg',
-                'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal'
-            ])
+                st.divider()
+                btn_prediksi = st.button("Jalankan Komputasi Risiko", type="primary", use_container_width=True, key="run_computation")
+
+        with right_col:
+            if btn_prediksi:
+                patient_data = pd.DataFrame([[
+                    usia, jenis_kelamin, nyeri_dada, tekanan_darah, kolesterol,
+                    gula_darah, hasil_ecg, detak_jantung, angina, oldpeak,
+                    slope, ca, thal
+                ]], columns=[
+                    'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg',
+                    'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal'
+                ])
+                st.session_state.manual_prediction_results = {
+                    "patient_data": patient_data,
+                    "model_pilihan": model_pilihan,
+                    "usia": usia,
+                    "jenis_kelamin": jenis_kelamin,
+                    "kolesterol": kolesterol
+                }
 
             with st.container(border=True):
-                st.markdown("### 📊 Hasil Prediksi")
+                st.markdown(
+                    """
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" fill="#0d7377"><path d="M200 936q-33 0-56.5-23.5T120 856V296q0-33 23.5-56.5T200 216h560q33 0 56.5 23.5T840 296v560q0 33-23.5 23.5T760 936H200Zm0-80h560V376H200v480Zm280-80q83 0 141.5-58.5T680 576q0-83-58.5-141.5T480 376q-83 0-141.5 58.5T280 576q0 83 58.5 141.5T480 776Z"/></svg>
+                        <h3 style="margin: 0 !important; color: #1e293b;">Status & Hasil Prediksi</h3>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
-                if model_pilihan == "Semua Model (4 Sekaligus)":
-                    results = predict_all(patient_data)
-                    r_cols = st.columns(4)
+                results_state = st.session_state.manual_prediction_results
 
-                    all_preds = {}
-                    for idx, (name, res) in enumerate(results.items()):
-                        with r_cols[idx]:
-                            if res["status"] == "success":
-                                pred = res["prediction"][0]
-                                all_preds[name] = "Terindikasi" if pred == 1 else "Tidak Terindikasi"
-
-                                if pred == 1:
-                                    st.markdown(
-                                        f"""
-                                        <div class="result-positive" style="text-align:center; min-height:160px; display:flex; flex-direction:column; justify-content:center;">
-                                            <h4 style="margin:0;">{name}</h4>
-                                            <p style="font-size:2rem !important; margin:0.3rem 0;">⚠️</p>
-                                            <p style="font-weight:700; margin:0;">Terindikasi</p>
-                                        </div>
-                                        """,
-                                        unsafe_allow_html=True
-                                    )
-                                else:
-                                    st.markdown(
-                                        f"""
-                                        <div class="result-negative" style="text-align:center; min-height:160px; display:flex; flex-direction:column; justify-content:center;">
-                                            <h4 style="margin:0;">{name}</h4>
-                                            <p style="font-size:2rem !important; margin:0.3rem 0;">✅</p>
-                                            <p style="font-weight:700; margin:0;">Aman</p>
-                                        </div>
-                                        """,
-                                        unsafe_allow_html=True
-                                    )
-                            else:
-                                st.error(f"{name}: {res['error']}")
-                                all_preds[name] = "Error"
-
-                    indicated_count = sum(1 for p in all_preds.values() if p == "Terindikasi")
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    if indicated_count >= 2:
-                        st.error(
-                            f"⚠️ **{indicated_count} dari 4 model** mendeteksi risiko penyakit jantung. "
-                            "Disarankan untuk segera berkonsultasi ke dokter."
-                        )
-                    else:
-                        st.success(
-                            "✅ Mayoritas model menunjukkan **tidak ada indikasi** penyakit jantung. "
-                            "Tetap jaga pola hidup sehat ya!"
-                        )
-
-                    st.session_state.history.append({
-                        "waktu": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "metode": "Manual",
-                        "data_pasien": f"Usia: {usia}, JK: {'L' if jenis_kelamin==1 else 'P'}, Kolesterol: {kolesterol}",
-                        "model": "Semua Model",
-                        "hasil": f"KNN: {all_preds.get('KNN')}, SVM: {all_preds.get('SVM')}, DT: {all_preds.get('Decision Tree')}, NN: {all_preds.get('Neural Network')}"
-                    })
-
+                if results_state is None:
+                    st.markdown(
+                        """
+                        <div class="result-placeholder-card">
+                            <div class="heart-pulse-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="80" viewBox="0 96 960 960" width="80" fill="#dc2626">
+                                    <path d="m480 935-41-37q-106-97-175-167.5t-110-126Q113 549 96.5 504T80 413q0-90 60.5-150.5T290 202q57 0 105.5 27t84.5 78q42-54 89-79.5T670 202q89 0 149.5 60.5T880 413q0 46-16.5 91T806 604.5q-41 55.5-110 126T521 898l-41 37Z"/>
+                                </svg>
+                            </div>
+                            <h2>Siap Memproses Data</h2>
+                            <p>Silakan lengkapi formulir klinis di panel kiri. Sistem cerdas akan mengoordinasikan kluster data secara simultan.</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
                 else:
-                    try:
-                        preds, probs = predict_single(model_pilihan, patient_data)
-                        pred = preds[0]
-                        hasil_text = "Terindikasi" if pred == 1 else "Tidak Terindikasi"
+                    p_data = results_state["patient_data"]
+                    m_pilihan = results_state["model_pilihan"]
+                    u_age = results_state["usia"]
+                    u_sex = results_state["jenis_kelamin"]
+                    u_chol = results_state["kolesterol"]
 
-                        if pred == 1:
-                            st.markdown(
-                                f"""
-                                <div class="result-positive">
-                                    <h3>⚠️ Terindikasi Penyakit Jantung — {model_pilihan}</h3>
-                                    <p>Model <strong>{model_pilihan}</strong> mendeteksi adanya risiko penyakit jantung pada data ini. Segera konsultasikan ke dokter untuk pemeriksaan lebih lanjut.</p>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
+                    st.markdown("<div style='min-height: 440px;'>", unsafe_allow_html=True)
+                    if m_pilihan == "Semua Model (4 Sekaligus)":
+                        results = predict_all(p_data)
+                        row1 = st.columns(2)
+                        row2 = st.columns(2)
+                        grid_cols = [row1[0], row1[1], row2[0], row2[1]]
+
+                        all_preds = {}
+                        for idx, (name, res) in enumerate(results.items()):
+                            with grid_cols[idx]:
+                                if res["status"] == "success":
+                                    pred = res["prediction"][0]
+                                    all_preds[name] = "Terindikasi Penyakit Jantung" if pred == 1 else "Sehat dari Penyakit Jantung"
+
+                                    if pred == 1:
+                                        st.markdown(
+                                            f"""
+                                            <div class="result-positive" style="text-align:center; min-height:120px; display:flex; flex-direction:column; justify-content:center; margin-bottom: 0.6rem;">
+                                                <h4 style="margin:0; font-size:0.85rem !important;">{name}</h4>
+                                                <p style="font-size:1.5rem !important; margin:0.2rem 0;">⚠️</p>
+                                                <p style="font-weight:700; margin:0; font-size:0.75rem !important;">Terindikasi</p>
+                                            </div>
+                                            """,
+                                            unsafe_allow_html=True
+                                        )
+                                    else:
+                                        st.markdown(
+                                            f"""
+                                            <div class="result-negative" style="text-align:center; min-height:120px; display:flex; flex-direction:column; justify-content:center; margin-bottom: 0.6rem;">
+                                                <h4 style="margin:0; font-size:0.85rem !important;">{name}</h4>
+                                                <p style="font-size:1.5rem !important; margin:0.2rem 0;">✅</p>
+                                                <p style="font-weight:700; margin:0; font-size:0.75rem !important;">Sehat</p>
+                                            </div>
+                                            """,
+                                            unsafe_allow_html=True
+                                        )
+                                else:
+                                    st.error(f"{name} Error")
+                                    all_preds[name] = "Error"
+
+                        indicated_count = sum(1 for p in all_preds.values() if p == "Terindikasi Penyakit Jantung")
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        if indicated_count >= 2:
+                            st.error(
+                                f"⚠️ **{indicated_count} dari 4 model** mendeteksi risiko penyakit jantung. "
+                                "Disarankan segera berkonsultasi ke dokter."
                             )
                         else:
-                            st.markdown(
-                                f"""
-                                <div class="result-negative">
-                                    <h3>✅ Tidak Terindikasi — {model_pilihan}</h3>
-                                    <p>Model <strong>{model_pilihan}</strong> tidak mendeteksi risiko penyakit jantung. Tetap jaga pola makan sehat dan olahraga teratur.</p>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
+                            st.success(
+                                "✅ Mayoritas model menunjukkan **tidak ada indikasi** penyakit jantung."
                             )
 
-                        st.session_state.history.append({
-                            "waktu": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            "metode": "Manual",
-                            "data_pasien": f"Usia: {usia}, JK: {'L' if jenis_kelamin==1 else 'P'}, Kolesterol: {kolesterol}",
-                            "model": model_pilihan,
-                            "hasil": hasil_text
-                        })
-                    except Exception as e:
-                        st.error(f"Terjadi kesalahan: {e}")
+                        if btn_prediksi:
+                            st.session_state.history.append({
+                                "waktu": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                "metode": "Manual",
+                                "data_pasien": f"Usia: {u_age}, JK: {'L' if u_sex==1 else 'P'}, Kolesterol: {u_chol}",
+                                "model": "Semua Model",
+                                "hasil": f"KNN: {all_preds.get('KNN')}, SVM: {all_preds.get('SVM')}, DT: {all_preds.get('Decision Tree')}, NN: {all_preds.get('Neural Network')}"
+                            })
+
+                    else:
+                        try:
+                            preds, probs = predict_single(m_pilihan, p_data)
+                            pred = preds[0]
+                            hasil_text = "Terindikasi Penyakit Jantung" if pred == 1 else "Sehat dari Penyakit Jantung"
+
+                            if pred == 1:
+                                st.markdown(
+                                    f"""
+                                    <div class="result-positive" style="min-height: 180px; display: flex; flex-direction: column; justify-content: center; padding: 1.5rem; text-align: center;">
+                                        <h3 style="margin-top:0;">⚠️ Terindikasi Penyakit Jantung</h3>
+                                        <h4 style="margin: 0.3rem 0; font-weight:700;">Model: {m_pilihan}</h4>
+                                        <p style="margin: 0.5rem 0 0 0; font-size: 0.82rem !important; line-height:1.6;">Model mendeteksi adanya risiko penyakit jantung pada data ini. Segera konsultasikan ke dokter untuk pemeriksaan lebih lanjut.</p>
+                                    </div>
+                                    """,
+                                    unsafe_allow_html=True
+                                )
+                            else:
+                                st.markdown(
+                                    f"""
+                                    <div class="result-negative" style="min-height: 180px; display: flex; flex-direction: column; justify-content: center; padding: 1.5rem; text-align: center;">
+                                        <h3 style="margin-top:0;">✅ Sehat dari Penyakit Jantung</h3>
+                                        <h4 style="margin: 0.3rem 0; font-weight:700;">Model: {m_pilihan}</h4>
+                                        <p style="margin: 0.5rem 0 0 0; font-size: 0.82rem !important; line-height:1.6;">Model tidak mendeteksi risiko penyakit jantung. Tetap jaga pola makan sehat dan olahraga teratur.</p>
+                                    </div>
+                                    """,
+                                    unsafe_allow_html=True
+                                )
+
+                            if btn_prediksi:
+                                st.session_state.history.append({
+                                    "waktu": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                    "metode": "Manual",
+                                    "data_pasien": f"Usia: {u_age}, JK: {'L' if u_sex==1 else 'P'}, Kolesterol: {u_chol}",
+                                    "model": m_pilihan,
+                                    "hasil": hasil_text
+                                })
+                        except Exception as e:
+                            st.error(f"Terjadi kesalahan: {e}")
+
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                    if st.button("Reset / Input Baru", use_container_width=True, key="reset_prediction"):
+                        st.session_state.manual_prediction_results = None
+                        st.rerun()
 
     # ---- B. UPLOAD CSV ----
     else:
@@ -337,7 +405,7 @@ def render():
                                 for name, res in results_all.items():
                                     if res["status"] == "success":
                                         df[f"Hasil {name}"] = np.where(
-                                            res["prediction"] == 1, "Terindikasi", "Aman"
+                                            res["prediction"] == 1, "Terindikasi Penyakit Jantung", "Sehat dari Penyakit Jantung"
                                         )
                                 st.success("Prediksi selesai untuk semua model!")
                                 st.dataframe(df, use_container_width=True)
@@ -361,7 +429,7 @@ def render():
                             else:
                                 preds, _ = predict_single(model_pilihan, features_df)
                                 df[f"Hasil ({model_pilihan})"] = np.where(
-                                    preds == 1, "Terindikasi", "Aman"
+                                    preds == 1, "Terindikasi Penyakit Jantung", "Sehat dari Penyakit Jantung"
                                 )
                                 st.success(f"Prediksi selesai ({model_pilihan})!")
                                 st.dataframe(df, use_container_width=True)

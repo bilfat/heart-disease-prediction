@@ -98,10 +98,11 @@ div:has(.nav-container-marker) + div [data-testid="stHorizontalBlock"] {
     background: var(--card) !important;
     border: 1px solid var(--border) !important;
     border-radius: var(--radius) !important;
-    padding: 0.5rem 1.6rem !important;
+    padding: 0.75rem 1.6rem !important;
     margin-bottom: 1.8rem !important;
     box-shadow: var(--shadow-sm) !important;
     align-items: center !important;
+    overflow: hidden !important;
 }
 
 .nav-logo {
@@ -115,48 +116,58 @@ div:has(.nav-container-marker) + div [data-testid="stHorizontalBlock"] {
 }
 
 .nav-logo h1 {
-    font-size: 1.25rem !important;
+    font-size: 1.15rem !important;
     font-weight: 800 !important;
     color: var(--primary) !important;
     margin: 0 !important;
+    padding: 0 !important;
     letter-spacing: -0.02em !important;
+    line-height: 1.2 !important;
 }
 
 .nav-logo-sub {
-    font-size: 0.68rem !important;
+    font-size: 0.62rem !important;
     color: var(--text-muted) !important;
     font-weight: 500 !important;
-    margin-top: -1px;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap;
 }
 
 /* --- Nav Buttons (inactive) --- */
 div:has(.nav-container-marker) + div [data-testid="stHorizontalBlock"] button[kind="secondary"] {
     background: transparent !important;
-    color: var(--text-secondary) !important;
+    color: #4A5568 !important;
     border: none !important;
     font-weight: 500 !important;
-    font-size: 0.85rem !important;
-    padding: 0.45rem 1rem !important;
+    font-size: 0.88rem !important;
+    padding: 0.5rem 0.8rem !important;
     border-radius: 8px !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.2s ease !important;
     position: relative !important;
 }
 
 div:has(.nav-container-marker) + div [data-testid="stHorizontalBlock"] button[kind="secondary"]:hover {
-    background: #e0f2fe !important;
-    color: #1d4ed8 !important;
+    background: #f1f5f9 !important;
+    color: #0A84FF !important;
 }
 
 /* --- Nav Buttons (active) with pill indicator --- */
 div:has(.nav-container-marker) + div [data-testid="stHorizontalBlock"] button[kind="primary"] {
-    background-color: #e0f2fe !important;
-    color: #1d4ed8 !important;
+    background-color: #0A84FF !important;
+    color: white !important;
     border: none !important;
-    font-weight: 700 !important;
-    font-size: 0.85rem !important;
-    padding: 0.45rem 1rem !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    padding: 0.5rem 0.8rem !important;
     border-radius: 8px !important;
-    box-shadow: none !important;
+    box-shadow: 0 2px 4px rgba(10, 132, 255, 0.2) !important;
+}
+
+/* Force white color for all internal text and icons inside the active button */
+div:has(.nav-container-marker) + div [data-testid="stHorizontalBlock"] button[kind="primary"] * {
+    color: white !important;
 }
 
 /* ============================================
@@ -176,19 +187,20 @@ div:has(.nav-container-marker) + div [data-testid="stHorizontalBlock"] button[ki
     box-shadow: var(--shadow-md);
 }
 
-/* Style Streamlit's native container with border to act as our card */
+/* Style Streamlit's native container with border to act as a premium floating card */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    background-color: var(--card) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-    padding: 1.5rem !important;
-    box-shadow: var(--shadow-sm) !important;
-    transition: box-shadow 0.2s ease !important;
-    margin-bottom: 1.5rem !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    padding: 1.8rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+    transition: all 0.25s ease-in-out !important;
+    margin-bottom: 1.8rem !important;
 }
 
 div[data-testid="stVerticalBlockBorderWrapper"]:hover {
-    box-shadow: var(--shadow-md) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+    transform: translateY(-2px);
 }
 
 /* Reset inner block layout padding inside the container card wrapper */
@@ -198,28 +210,85 @@ div[data-testid="stVerticalBlockBorderWrapper"] > div[data-testid="stVerticalBlo
 }
 
 /* ============================================
-   GRADIENT HERO HEADER
+   GRADIENT HERO HEADER (SOFT BLUE MEDICAL THEME)
    ============================================ */
 .hero {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 60%, var(--accent) 100%);
+    background: linear-gradient(135deg, #EBF8FF 0%, #FFFFFF 100%);
+    border: 1px solid #BEE3F8;
     padding: 2.2rem 2rem;
     border-radius: var(--radius);
     margin-bottom: 1.8rem;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
 .hero h1 {
-    color: #fff !important;
-    font-size: 1.6rem !important;
+    color: #1A365D !important; /* Elegant dark blue */
+    font-size: 1.65rem !important;
     font-weight: 800 !important;
-    margin: 0 0 0.4rem 0 !important;
+    margin: 0 0 0.5rem 0 !important;
+    text-shadow: none !important;
 }
 
 .hero p {
-    color: rgba(255,255,255,0.88) !important;
-    font-size: 0.95rem !important;
+    color: #4A5568 !important; /* Clean gray/black text */
+    font-size: 0.98rem !important;
     margin: 0 !important;
-    font-weight: 400 !important;
+    font-weight: 500 !important;
+    line-height: 1.6 !important;
+    text-shadow: none !important;
+}
+
+/* ============================================
+   KPI METRIC CARDS LAYOUT
+   ============================================ */
+.kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 1.8rem;
+}
+
+.kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.4rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: all 0.2s ease;
+}
+
+.kpi-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--primary-light);
+}
+
+.kpi-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.8rem;
+}
+
+.kpi-value {
+    font-size: 1.45rem !important;
+    font-weight: 800 !important;
+    color: var(--text) !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0.3rem !important;
+}
+
+.kpi-label {
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    color: var(--text-secondary) !important;
+    line-height: 1.3 !important;
 }
 
 /* ============================================
@@ -444,9 +513,20 @@ div[data-testid="stNumberInput"] label p {
 }
 
 /* Primary action buttons */
-div.stButton > button[kind="primary"],
-div.stButton > button:not([class*="nav-btn"]) {
-    border: 1px solid var(--border) !important;
+div.stButton > button[kind="primary"] {
+    background-color: #0A84FF !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 6px rgba(10, 132, 255, 0.2) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+div.stButton > button[kind="primary"]:hover {
+    background-color: #0070e0 !important;
+    box-shadow: 0 6px 12px rgba(10, 132, 255, 0.35) !important;
+    transform: translateY(-2px);
 }
 
 /* Expander header */
@@ -460,4 +540,61 @@ div[data-testid="stExpander"] summary span {
 hr {
     border-color: var(--border) !important;
     opacity: 0.6;
+}
+
+/* ============================================
+   PREDICTION PAGE SPLIT PANEL STYLES
+   ============================================ */
+
+/* Result Placeholder Card */
+.result-placeholder-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 2rem;
+    min-height: 520px;
+    height: 100%;
+}
+
+.result-placeholder-card h2 {
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+    color: var(--text) !important;
+    margin: 1.5rem 0 0.5rem 0 !important;
+}
+
+.result-placeholder-card p {
+    font-size: 0.82rem !important;
+    color: var(--text-secondary) !important;
+    line-height: 1.65 !important;
+    max-width: 340px;
+    margin: 0 auto !important;
+}
+
+/* Heart pulsing animation */
+.heart-pulse-icon {
+    animation: heartPulse 1.8s infinite ease-in-out;
+    display: inline-block;
+}
+
+@keyframes heartPulse {
+    0% {
+        transform: scale(0.96);
+        filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.15));
+    }
+    50% {
+        transform: scale(1.06);
+        filter: drop-shadow(0 8px 16px rgba(220, 38, 38, 0.35));
+    }
+    100% {
+        transform: scale(0.96);
+        filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.15));
+    }
+}
+
+/* Action button styling */
+.stApp div.stButton > button {
+    transition: all 0.2s ease-in-out !important;
 }

@@ -1,12 +1,20 @@
 # pyrefly: ignore [missing-import]
 import sys
 import os
+import importlib
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # pyrefly: ignore [missing-import]
 import streamlit as st
 from modules.prediction_engine import load_all_models
 from modules import page_home, page_prediksi, page_riwayat, page_analisis, page_tentang
+
+# Force reload modules to ensure disk updates are applied dynamically in Streamlit
+importlib.reload(page_home)
+importlib.reload(page_prediksi)
+importlib.reload(page_riwayat)
+importlib.reload(page_analisis)
+importlib.reload(page_tentang)
 
 # ====================================
 # KONFIGURASI HALAMAN & CSS
@@ -51,8 +59,10 @@ def render_navbar():
         st.markdown(
             """
             <div class="nav-logo">
-                <span class="nav-logo-icon">❤️</span>
-                <div>
+                <div class="nav-logo-icon" style="display: flex; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 96 960 960" width="32" fill="#0A84FF"><path d="m480 935-41-37q-106-97-175-167.5t-110-126Q113 549 96.5 504T80 413q0-90 60.5-150.5T290 202q57 0 105.5 27t84.5 78q42-54 89-79.5T670 202q89 0 149.5 60.5T880 413q0 46-16.5 91T806 604.5q-41 55.5-110 126T521 898l-41 37Z"/></svg>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;">
                     <h1>CardioCare</h1>
                     <div class="nav-logo-sub">Sistem Deteksi Risiko Jantung Cerdas</div>
                 </div>
@@ -63,19 +73,19 @@ def render_navbar():
 
     current = st.session_state.current_page
 
-    # Navigasi disesuaikan dengan gambar referensi dari user
+    # Navigasi disesuaikan dengan icon asli (Material Symbols)
     nav_items = [
-        ("home",     "🏠 Beranda",          "btn_home",     col_home),
-        ("riwayat",  "📈 Riwayat Pengecekan",    "btn_riwayat",  col_dash),
-        ("prediksi", "👤 Analisis Risiko",   "btn_prediksi", col_pred),
-        ("analisis", "🧠 Analisis Model",    "btn_analisis", col_anal),
-        ("tentang",  "ℹ️ Tentang",          "btn_tentang",  col_team),
+        ("home",     "Beranda",            "btn_home",     col_home, ":material/home:"),
+        ("riwayat",  "Riwayat Pengecekan", "btn_riwayat",  col_dash, ":material/analytics:"),
+        ("prediksi", "Analisis Penyakit Jantung",    "btn_prediksi", col_pred, ":material/monitor_heart:"),
+        ("analisis", "Analisis Model",     "btn_analisis", col_anal, ":material/psychology:"),
+        ("tentang",  "Tentang",            "btn_tentang",  col_team, ":material/info:"),
     ]
 
-    for page_key, label, btn_key, col in nav_items:
+    for page_key, label, btn_key, col, icon in nav_items:
         with col:
             btn_type = "primary" if current == page_key else "secondary"
-            if st.button(label, key=btn_key, type=btn_type, use_container_width=True):
+            if st.button(label, icon=icon, key=btn_key, type=btn_type, use_container_width=True):
                 st.session_state.current_page = page_key
                 st.rerun()
 
